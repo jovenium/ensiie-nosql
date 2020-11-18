@@ -7,15 +7,26 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - psqldata:/var/lib/postgresql/data
   mongo:
     image: mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: mongo
+      - MONGO_INITDB_DATABASE=mongo
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
+      - MONGODB_DATA_DIR=/data/db
+      - MONDODB_LOG_DIR=/dev/null
+    volumes: 
+      - mongodbdata:/data/db
   neo4j:
     image: neo4j
+    volumes:
+        - ./data/neo4j:/data
   redis:
     image: redis
+    volumes:
+        - ./data/redis:/data
   web:
     build: ./app
     volumes:
@@ -27,3 +38,9 @@ services:
       - mongo
       - neo4j
       - redis
+
+volumes:
+  mongodbdata:
+    driver: local
+  psqldata:
+    driver: local
