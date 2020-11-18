@@ -1,0 +1,29 @@
+version: "3.8"
+   
+services:
+  psql:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+  neo4j:
+    image: neo4j
+  redis:
+    image: redis
+  web:
+    build: ./app
+    volumes:
+      - ./app:/usr/src/app
+    ports:
+      - 8001:80
+    depends_on:
+      - psql
+      - mongo
+      - neo4j
+      - redis
