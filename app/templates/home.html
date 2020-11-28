@@ -1,11 +1,21 @@
-<html>
-    <head></head>
-    <body>
-        <ul>
-            <li><a href="/redis">Redis</a></li>
-            <li><a href="/psql">Postgres</a></li>
-            <li><a href="/neo4j">Neo4j</a></li>
-            <li><a href="/mongo">MongoDB</a></li>
-        </ul>
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block navbar %}
+    {% include 'nav-authent.html' %}
+{% endblock %}
+
+{% block content %}
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-lg-7">
+                    {% include 'form_add_todo.html' %}
+                </div>
+              </div>
+           
+        </div>
+        <div class="container">
+           
+            {% include 'content.html' %}
+       
+        </div>
+{% endblock %}

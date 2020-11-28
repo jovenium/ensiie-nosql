@@ -18,6 +18,10 @@ app = Flask(__name__)
 def home():
 		return render_template("home.html")
 
+@app.route('/login')
+def login():
+		return render_template("login.html")
+
 @app.route('/redis')
 def redis():
 	r = RedisD.Redis(host='redis',port='6379',db=0)
@@ -70,7 +74,7 @@ def mongo():
 		client = MongoClient('mongodb://mongo:mongo@mongo')
 		
 		return {
-		'mongo': ['connexion:', 'OK']
+		'mongo': ['connexion:', client.db_name.command('ping')]
 		}
 	except:
 		return {

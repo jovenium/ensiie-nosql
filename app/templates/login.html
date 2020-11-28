@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+
+{% block navbar %}
+    {% include 'nav-default.html' %}
+{% endblock %}
+
+{% block content %}
+        <div class="container gigamargin">
+            <div class="row justify-content-md-center">
+                <div class="col-lg-4">
+                    <form method="POST" action="/login">
+                    <div class="form-group connexion text-center">
+                        <label for="login" class="text-center"><h2>Login</h2></label>
+                        <input class="form-control connexion" id="login" aria-describedby="login">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary connexion">Connexion</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container gigamargin"></div>
+{% endblock %}

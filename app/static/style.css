@@ -1,0 +1,70 @@
+/*https://flatuicolors.com/palette/in*/
+body{
+    background-color: #2C3A47 !important;
+    
+}
+
+nav{
+    background-color: #242f3a;
+}
+
+label {
+    color: #ffffff;
+}
+
+.github {
+    margin-top: 16px;
+    color: gray;
+    font-size: 50px;
+    animation: none;
+}
+
+.deconnection {
+    margin-top: 16px;
+}
+
+.bg-importance-1 {
+    background-color: #CAD3C8;
+}
+
+.bg-importance-2 {
+    background-color:#596275;
+}
+
+.bg-importance-3 {
+    background-color:#344574;
+}
+
+.bg-done {
+    background-color: #58B19F;
+}
+
+.datepick {
+    width:200px;
+}
+
+h1 {
+    color: blueviolet;
+}
+
+.trash {
+    font-size: 24px;
+    color: red;
+}
+
+.done {
+    font-size: 24px;
+    color: green;
+}
+
+footer {
+    color: white;
+}
+
+.gigamargin {
+    margin-top: 200px;
+}
+
+.connexion {
+    width: 260px;
+}
