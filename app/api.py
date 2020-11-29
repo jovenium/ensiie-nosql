@@ -14,13 +14,33 @@ from pymongo import MongoClient
 app = Flask(__name__)
 #api = Api(app)
 
+def redis_increment():
+	r = RedisD.Redis(host='redis',port='6379',db=0)
+	try:
+		if r.ping():
+			r.incr('compteur')
+			return int(r.get('compteur'))
+	except:
+		return 0
+
 @app.route('/')
 def home():
-		return render_template("home.html")
+		# compteur de visite :
+		counter_redis = redis_increment()
+
+		# valeurs retournees pour la vue
+		data = { "counter_redis" : counter_redis }
+
+		return render_template("home.html", data=data)
 
 @app.route('/login')
 def login():
-		return render_template("login.html")
+		# compteur de visite :
+		counter_redis = redis_increment()
+
+		# valeurs retournees pour la vue
+		data = { "counter_redis" : counter_redis }
+		return render_template("login.html", data=data)
 
 @app.route('/redis')
 def redis():
