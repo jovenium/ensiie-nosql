@@ -3,7 +3,7 @@
 #################################
 
 # Import framework
-from flask import Flask,render_template	
+from flask import Flask,render_template, request
 #from flask_restful import Resource, Api 
 import redis as RedisD
 import psycopg2
@@ -78,7 +78,7 @@ def postgres():
 @app.route('/neo4j')
 def neo4j():
 	try:
-		conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
+		GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
 		return {
 		'neo4j': ['connexion:', 'OK']
 		}
@@ -101,6 +101,30 @@ def neo4jGetUser(name):
 	conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
 	return {'userName' : [conn_neo.session().write_transaction(create_or_get_user, name)]}
 			
+
+def create_post_it(tx, userName, postItName, toDoDate, description):
+    tx.run("Match(u:User {name : $userName})"
+        "CREATE(p:PostIt {name: $postItName,"
+            "creationDate : date(),"
+            "toDoDate : date($toDoDate),"
+            "isDone : false,"
+            "description : $description})"
+        "create (u)-[:haveToDo]->(p)", userName=userName, postItName=postItName, toDoDate=toDoDate, description=description)
+
+@app.route('/neo4j/createPostIt', methods=['POST'])
+def neo4j_createpostit():
+    try:
+        form = request.form
+        conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
+        conn_neo.session().write_transaction(create_post_it, form["userName"], form["postItName"], form["toDoDate"], form["description"])
+        return {
+		    'addPostIt': 'succes'
+		    }
+    except:
+        return {
+			'addPostIt': 'fail'
+		}	
+
 
 @app.route('/mongo')
 def mongo():
