@@ -74,12 +74,11 @@ def postgres():
 		return {
 			'psql': ['fail']
 		}
-			
+
 @app.route('/neo4j')
 def neo4j():
 	try:
-		conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "neo4j"))
-		
+		conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
 		return {
 		'neo4j': ['connexion:', 'OK']
 		}
@@ -87,7 +86,22 @@ def neo4j():
 		return {
 			'neo4j': ['fail']
 		}
+
+def create_or_get_user(tx, name):
+    result = tx.run("MERGE (n:User {name: $name})"
+           "RETURN n.name AS name", name=name)
+    names = []
+    for record in result:
+        names.append(record["name"])
+    return names
+
+
+@app.route('/neo4j/getUser/<name>')
+def neo4jGetUser(name):
+	conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
+	return {'userName' : [conn_neo.session().write_transaction(create_or_get_user, name)]}
 			
+
 @app.route('/mongo')
 def mongo():
 	try:
