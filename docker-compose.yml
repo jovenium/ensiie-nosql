@@ -43,6 +43,8 @@ services:
       - mongo
       - neo4j
       - redis
+    environment: 
+      - PYTHONUNBUFFERED=1
 
 volumes:
   mongodbdata:
