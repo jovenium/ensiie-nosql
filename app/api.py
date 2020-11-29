@@ -150,7 +150,7 @@ def create_or_get_user(tx, name):
     return names
 
 
-@app.route('/neo4j/getUser/<name>')
+@app.route('/neo4j/getUser/<name>', methods=['GET'])
 def neo4jGetUser(name):
 	conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
 	return {'userName' : [conn_neo.session().write_transaction(create_or_get_user, name)]}
@@ -178,6 +178,36 @@ def neo4j_createpostit():
         return {
 			'addPostIt': 'fail'
 		}	
+
+def get_post_it(tx, name):
+    result = tx.run("MATCH (:User { name: $name })-->(p:PostIt) RETURN p AS postIt", name=name)
+    postIts = []
+    for record in result:
+        properties = {}
+        for key in record["postIt"].keys():
+            print(key)
+            if(key == "toDoDate" or key == "creationDate"):
+                date = record["postIt"][key]
+                properties[key] = date.iso_format()
+            else:
+                properties[key] = record["postIt"][key]
+        postIts.append(properties)
+    print(postIts)
+    return postIts
+
+
+@app.route('/neo4j/getPostIt/<name>', methods=['GET'])
+def neo4j_get_post_it_of(name):
+    try:
+        conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
+        
+        return {
+		    'getPostIt': conn_neo.session().write_transaction(get_post_it, name)
+		    }
+    except:
+        return {
+			'getPostIt': 'fail'
+		}
 
 
 @app.route('/mongo')
