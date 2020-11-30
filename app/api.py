@@ -41,8 +41,10 @@ def todo(name):
 			return redirect(url_for('login'))
 		# compteur de visite :
 		counter_redis = redis_increment()
+		# post-its 
+		neo4j_postits = conn_neo.session().write_transaction(get_post_it, name)
 		# valeurs retournees pour la vue
-		data = { "counter_redis" : counter_redis }
+		data = { "counter_redis" : counter_redis , "postits" : neo4j_postits }
 		return render_template("home.html", data=data)
 
 @app.route('/login',methods = ['POST', 'GET'])
