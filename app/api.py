@@ -9,16 +9,23 @@ import os
 #from flask_restful import Resource, Api 
 import redis as RedisD
 import psycopg2
+import uuid
 from neo4j import GraphDatabase
 from pymongo import MongoClient
 
 # initialisation de l'application
 app = Flask(__name__)
 databases= {1: 'neo4j', 2: 'mongodb', 3: 'postgres'}
-conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
+conn_neo = None
 conn_red = RedisD.Redis(host='redis',port='6379',db=0)
 conn_mon = MongoClient('mongodb://mongo:mongo@mongo')
 conn_psq = psycopg2.connect(host="psql",database="postgres",user="postgres",password="postgres",port='5432')
+
+def get_neo4J_connexion():
+	global conn_neo
+	if conn_neo is None:
+		conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
+	return conn_neo
 
 def redis_increment():
 	r = RedisD.Redis(host='redis',port='6379',db=0)
@@ -31,9 +38,9 @@ def redis_increment():
 
 @app.route('/')
 def home():
-		if session.get('logged_in') :
-			return redirect(url_for('todo',name = session.get('todo')))
-		return redirect(url_for('login'))
+	if session.get('logged_in') :
+		return redirect(url_for('todo',name = session.get('todo')))
+	return redirect(url_for('login'))
 
 @app.route('/<name>')
 def todo(name):
@@ -42,7 +49,7 @@ def todo(name):
 		# compteur de visite :
 		counter_redis = redis_increment()
 		# post-its 
-		neo4j_postits = conn_neo.session().write_transaction(get_post_it, name)
+		neo4j_postits = get_neo4J_connexion().session().write_transaction(get_post_it, name)
 		# valeurs retournees pour la vue
 		data = { "counter_redis" : counter_redis , "postits" : neo4j_postits }
 		return render_template("home.html", data=data)
@@ -87,7 +94,7 @@ def createpostit():
 	database_num = request.form["database"]
 
 	if databases[int(database_num)] == databases[1] :
-		conn_neo.session().write_transaction(create_post_it, user, title, todo_date, description)
+		get_neo4J_connexion().session().write_transaction(create_post_it, user, title, todo_date, description, importance)
 		app.logger.info("add post-it neo4j")
 	elif databases[int(database_num)] == databases[2] :
 		#do some mongo
@@ -154,25 +161,25 @@ def create_or_get_user(tx, name):
 
 @app.route('/neo4j/getUser/<name>', methods=['GET'])
 def neo4jGetUser(name):
-	conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
-	return {'userName' : [conn_neo.session().write_transaction(create_or_get_user, name)]}
+	return {'userName' : [get_neo4J_connexion().session().write_transaction(create_or_get_user, name)]}
 			
 
-def create_post_it(tx, userName, postItName, toDoDate, description):
+def create_post_it(tx, userName, postItName, toDoDate, description, importance):
     tx.run("Match(u:User {name : $userName})"
-        "CREATE(p:PostIt {name: $postItName,"
+        "CREATE(p:PostIt {uuid : apoc.create.uuid(),"
+			"name: $postItName,"
             "creationDate : date(),"
             "toDoDate : date($toDoDate),"
             "isDone : false,"
-            "description : $description})"
-        "create (u)-[:haveToDo]->(p)", userName=userName, postItName=postItName, toDoDate=toDoDate, description=description)
+            "description : $description,"
+			"importance : $importance})"
+        "create (u)-[:haveToDo]->(p)", userName=userName, postItName=postItName, toDoDate=toDoDate, description=description, importance=importance)
 
 @app.route('/neo4j/createPostIt', methods=['POST'])
 def neo4j_createpostit():
     try:
         form = request.form
-        conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
-        conn_neo.session().write_transaction(create_post_it, form["userName"], form["postItName"], form["toDoDate"], form["description"])
+        get_neo4J_connexion().session().write_transaction(create_post_it, form["userName"], form["postItName"], form["toDoDate"], form["description"])
         return {
 		    'addPostIt': 'succes'
 		    }
@@ -201,16 +208,47 @@ def get_post_it(tx, name):
 @app.route('/neo4j/getPostIt/<name>', methods=['GET'])
 def neo4j_get_post_it_of(name):
     try:
-        conn_neo = GraphDatabase.driver("bolt://neo4j:7687", auth=("neo4j", "admin"))
-        
         return {
-		    'getPostIt': conn_neo.session().write_transaction(get_post_it, name)
+		    'getPostIt': get_neo4J_connexion().session().write_transaction(get_post_it, name)
 		    }
     except:
         return {
 			'getPostIt': 'fail'
 		}
 
+def set_done(tx, uuid):
+	tx.run("match (p:PostIt{uuid: $uuid}) set p.isDone = true", uuid=uuid)
+
+
+@app.route('/neo4j/setDone/<uuid>')
+def neo4j_set_done(uuid):
+	try:
+		get_neo4J_connexion().session().write_transaction(set_done, uuid)
+		return{
+		    'setIsDone': 'ok'
+		    }
+	except:
+		return {
+			'setIsDone': 'fail'
+		}
+
+
+def remove_post_it(tx, uuid):
+	tx.run("match (p:PostIt{uuid: $uuid}) detach delete p", uuid=uuid)
+
+
+@app.route('/neo4j/removePostIt/<uuid>')
+def neo4j_remove_post_it(uuid):
+	try:
+		get_neo4J_connexion().session().write_transaction(remove_post_it, uuid)
+		return {
+		    'removed': 'ok'
+		    }
+	except:
+		return {
+			'removed': 'fail'
+		}
+ 
 
 @app.route('/mongo')
 def mongo():
