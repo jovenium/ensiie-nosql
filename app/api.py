@@ -200,6 +200,7 @@ def get_post_it(tx, name):
                 properties[key] = date.iso_format()
             else:
                 properties[key] = record["postIt"][key]
+        properties["dataBase"] = "neo4j"
         postIts.append(properties)
     print(postIts)
     return postIts
