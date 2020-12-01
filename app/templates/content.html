@@ -13,11 +13,19 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-sm">
-                                <a class="text-center" href="/remove/{{ postit.id }}"><i class="far fa-trash-alt trash"></i></a>
+                                <a class="text-center" href="
+                                {% if postit.dataBase=='neo4j' %}
+                                {{ url_for('neo4j_remove_post_it', uuid=postit.uuid) }}
+                                {% endif %}
+                                "><i class="far fa-trash-alt trash"></i></a>
                             </div>
-                            {% if not isDone %}
+                            {% if not postit.isDone %}
                             <div class="col-sm">
-                                <a class="text-center" href="/setdone/{{ postit.id }}"><i class="fas fa-clipboard-check done"></i></a>
+                                <a class="text-center" href="
+                                {% if postit.dataBase=='neo4j' %}
+                                {{ url_for('neo4j_set_done', uuid=postit.uuid) }}
+                                {% endif %}
+                                "><i class="fas fa-clipboard-check done"></i></a>
                             </div>
                             {% endif %}
                     </div>

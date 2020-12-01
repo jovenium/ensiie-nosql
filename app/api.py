@@ -225,14 +225,9 @@ def set_done(tx, uuid):
 def neo4j_set_done(uuid):
 	try:
 		get_neo4J_connexion().session().write_transaction(set_done, uuid)
-		return{
-		    'setIsDone': 'ok'
-		    }
+		return redirect(url_for('home'))
 	except:
-		return {
-			'setIsDone': 'fail'
-		}
-
+		return redirect(url_for('home'))
 
 def remove_post_it(tx, uuid):
 	tx.run("match (p:PostIt{uuid: $uuid}) detach delete p", uuid=uuid)
@@ -242,13 +237,9 @@ def remove_post_it(tx, uuid):
 def neo4j_remove_post_it(uuid):
 	try:
 		get_neo4J_connexion().session().write_transaction(remove_post_it, uuid)
-		return {
-		    'removed': 'ok'
-		    }
+		return redirect(url_for('home'))
 	except:
-		return {
-			'removed': 'fail'
-		}
+		return redirect(url_for('home'))
  
 
 @app.route('/mongo')
