@@ -18,7 +18,7 @@
                                 {% if postit.dataBase=='neo4j' %}
                                 {{ url_for('neo4j_remove_post_it', uuid=postit.uuid) }}
                                 {% elif postit.dataBase=='mongodb' %}
-                                {{ url_for('neo4j_remove_post_it', uuid=postit._id) }}
+                                {{ url_for('mongo_remove_post_it', id=postit._id) }}
                                 {% endif %}
                                 "><i class="far fa-trash-alt trash"></i></a>
                             </div>
@@ -28,7 +28,7 @@
                                 {% if postit.dataBase=='neo4j' %}
                                 {{ url_for('neo4j_set_done', uuid=postit.uuid) }}
                                 {% elif postit.dataBase=='mongodb' %}
-                                {{ url_for('neo4j_set_done', uuid=postit._id) }}
+                                {{ url_for('mongo_set_done', id=postit._id) }}
                                 {% endif %}
                                 "><i class="fas fa-clipboard-check done"></i></a>
                             </div>

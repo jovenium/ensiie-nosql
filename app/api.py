@@ -13,6 +13,7 @@ import psycopg2
 import uuid
 from neo4j import GraphDatabase
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 # initialisation de l'application
 app = Flask(__name__)
@@ -190,6 +191,20 @@ def get_post_it_mongo(user):
 	for postit in postits :
 		postit['dataBase']='mongodb'
 	return postits
+
+@app.route('/mongo/setDone/<id>')
+def mongo_set_done(id):
+	conn_mon=get_mongodb_connexion()
+	db=conn_mon.ToutDoux
+	db.PostIt.update({"_id":ObjectId(str(id))},{'$set':{'isDone':True}})
+	return redirect(url_for('home'))
+
+@app.route('/mongo/removePostIt/<id>')
+def mongo_remove_post_it(id):
+	conn_mon=get_mongodb_connexion()
+	db=conn_mon.ToutDoux
+	db.PostIt.remove({"_id":ObjectId(str(id))})
+	return redirect(url_for('home'))
 
 def create_post_it(tx, userName, postItName, toDoDate, description, importance):
     tx.run("Match(u:User {name : $userName})"
