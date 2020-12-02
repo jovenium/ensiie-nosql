@@ -49,12 +49,12 @@ h1 {
 
 .trash {
     font-size: 24px;
-    color: red;
+    color: rgb(93, 194, 212);
 }
 
 .done {
     font-size: 24px;
-    color: green;
+    color: rgb(124, 206, 124);
 }
 
 footer {
@@ -62,7 +62,7 @@ footer {
 }
 
 .gigamargin {
-    margin-top: 200px;
+    margin-top: 240px;
 }
 
 .connexion {
