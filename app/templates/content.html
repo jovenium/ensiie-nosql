@@ -1,5 +1,6 @@
 <div class="row row-cols-1 row-cols-md-3 mt-5">
-    {% for postit in data.postits %}
+    {% for bases in data.postits %}
+    {% for postit in bases %}
     <div class="col mb-4">
         <!-- une carte, on peut en mettre autant qu'on veut sous cette div-->
         <div class="card {% if postit.isDone %}text-white bg-done{%else%}text-dark bg-light{%endif%}" >
@@ -16,6 +17,8 @@
                                 <a class="text-center" href="
                                 {% if postit.dataBase=='neo4j' %}
                                 {{ url_for('neo4j_remove_post_it', uuid=postit.uuid) }}
+                                {% elif postit.dataBase=='mongodb' %}
+                                {{ url_for('neo4j_remove_post_it', uuid=postit._id) }}
                                 {% endif %}
                                 "><i class="far fa-trash-alt trash"></i></a>
                             </div>
@@ -24,6 +27,8 @@
                                 <a class="text-center" href="
                                 {% if postit.dataBase=='neo4j' %}
                                 {{ url_for('neo4j_set_done', uuid=postit.uuid) }}
+                                {% elif postit.dataBase=='mongodb' %}
+                                {{ url_for('neo4j_set_done', uuid=postit._id) }}
                                 {% endif %}
                                 "><i class="fas fa-clipboard-check done"></i></a>
                             </div>
@@ -34,6 +39,7 @@
               </ul>
         </div>
       </div>
+      {% endfor %}
       {% endfor %}
       
       <div class="col mb-4">
