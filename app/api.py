@@ -67,6 +67,8 @@ def todo(name):
 def login():
 		if request.method == 'POST':
 			login = request.form['name']
+			if login == "" :
+				return redirect(url_for('login'))
 			neo4jGetUser(login) # neo4j
 			mongodbGetUser(login) #mongo
 			session['logged_in'] = True
