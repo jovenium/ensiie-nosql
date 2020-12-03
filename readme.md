@@ -1,6 +1,6 @@
 # ensiie-nosql
 
-## ToutDoux-QL un petit outils pour TODOs
+## ToutDoux-QL un petit outil pour TODOs
 
 Démarrer avec `docker-compose up`.
 Vous avez accès à :
